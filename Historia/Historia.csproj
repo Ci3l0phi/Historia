@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Decryptor.cs" />
     <Compile Include="Blowfish.cs" />
+    <Compile Include="Op.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
