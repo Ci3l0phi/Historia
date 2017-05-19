@@ -11,6 +11,8 @@ namespace Historia
     public class Proxy
     {
         private readonly Socket _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        private static TOSCrypto crypto = new TOSCrypto();
+        
         public void Init(IPEndPoint local, IPEndPoint destination)
         {
             _socket.Bind(local);
@@ -22,7 +24,7 @@ namespace Historia
                 var destProxy = new Proxy();
                 var state = new State(source, destProxy._socket);
                 destProxy.Connect(destination, source);
-                source.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, Process, state);
+                source.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, OnReceive, state);
             }
         }
 
@@ -30,19 +32,28 @@ namespace Historia
         {
             var state = new State(_socket, destination);
             _socket.Connect(remoteEndpoint);
-            _socket.BeginReceive(state.Buffer, 0, state.Buffer.Length, SocketFlags.None, Process, state);
+            _socket.BeginReceive(state.Buffer, 0, state.Buffer.Length, SocketFlags.None, OnReceive, state);
         }
 
-        private static void Process(IAsyncResult result)
+        private static void OnReceive(IAsyncResult result)
         {
             var state = (State)result.AsyncState;
             try
             {
                 var bytesRead = state.Source.EndReceive(result);
+                var processed = 0;
+
                 if (bytesRead > 0)
                 {
                     state.Destination.Send(state.Buffer, bytesRead, SocketFlags.None);
-                    state.Source.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, Process, state);
+                    state.Source.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, OnReceive, state);
+
+                    //new Task(() => { Process(state.Buffer, bytesRead); }).Start();
+                    Process(state.Buffer, bytesRead);
+                }
+                else
+                {
+                    Console.WriteLine("Transmission End.");
                 }
             }
             catch (Exception e)
@@ -51,6 +62,31 @@ namespace Historia
                 state.Source.Close();
                 Console.WriteLine(e.Message);
             }
+        }
+
+        private static void Process(byte[] buffer, int read)
+        {
+            byte[] copy;
+            var packetLength = BitConverter.ToInt16(buffer, 0);
+            if (read == packetLength + 2)
+            {
+                copy = new byte[packetLength];
+                Buffer.BlockCopy(buffer, 2, copy, 0, packetLength);
+                crypto.Decrypt(copy, 0, packetLength);
+            } else
+            {
+                copy = new byte[read];
+                Buffer.BlockCopy(buffer, 0, copy, 0, read);
+            }
+
+            StringBuilder hex = new StringBuilder();
+            foreach (var b in copy)
+            {
+                hex.AppendFormat("{0:x2}", b);
+                hex.Append(" ");
+            }
+            Console.WriteLine(hex);
+            Console.WriteLine("");
         }
 
         private class State

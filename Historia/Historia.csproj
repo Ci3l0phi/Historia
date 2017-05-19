@@ -47,7 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Decryptor.cs" />
+    <Compile Include="TOSCryto.cs" />
     <Compile Include="Blowfish.cs" />
     <Compile Include="Op.cs" />
     <Compile Include="Options.cs" />
