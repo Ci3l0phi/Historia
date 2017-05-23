@@ -18,13 +18,12 @@ namespace Historia
             {
                 if (CommandLine.Parser.Default.ParseArguments(args, options))
                 {
-                    //var destination = GetIPEndPoint(options.destination);
                     var local = GetIPEndPoint(options.local);
+                    var web = GetIPEndPoint(options.web);
 
-                    var config = new ConfigServer(local, options.TOSPath);
+                    var config = new ConfigServer(local, web, options.TOSPath);
                     var destination = GetIPEndPoint(config.Init());
 
-                    //new ProxyBak().Init(local, destination, new HTMLWriter());
                     var writer = new HTMLWriter();
                     new Proxy(writer).StartAsync(local, destination);
 
@@ -33,11 +32,6 @@ namespace Historia
                     proc.FileName = GetClientExe(options.TOSPath);
                     proc.Arguments = "-SERVICE";
                     Process.Start(proc);
-
-                    //var writer = new HTMLWriter();
-
-                    //new ProxyBak().Init(local, destination, writer);
-                    
 
                     Console.ReadLine();
                 }

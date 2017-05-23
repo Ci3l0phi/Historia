@@ -15,18 +15,18 @@ namespace Historia
         private readonly HttpListener _listener = new HttpListener();
         private readonly IPEndPoint _endpoint;
         private readonly string _TOSPath;
-
-        private readonly string webProxy = "http://127.0.0.1:6000";
+        private readonly string _webProxy;
 
         public List<string> endpoints { get; private set; }
 
-        public ConfigServer(IPEndPoint proxy, string TOSPath)
+        public ConfigServer(IPEndPoint proxy, IPEndPoint web, string TOSPath)
         {
             this._endpoint = proxy;
             this._TOSPath = TOSPath;
+            this._webProxy = string.Format("http://{0}:{1}", web.Address.ToString(), web.Port);
             this.endpoints = new List<string>();
 
-            _listener.Prefixes.Add(string.Format("{0}/toslive/patch/serverlist.xml/", webProxy));
+            _listener.Prefixes.Add(string.Format("{0}/toslive/patch/serverlist.xml/", _webProxy));
             _listener.Start();
             Console.WriteLine("[ConfigServer] Listening for config requests.");
         }
@@ -119,7 +119,7 @@ namespace Historia
         {
             var filepath = GetClientXml();
             var clientxml = File.ReadAllText(filepath);
-            var replacement = String.Format("ServerListURL=\"{0}/toslive/patch/serverlist.xml\"", webProxy);
+            var replacement = String.Format("ServerListURL=\"{0}/toslive/patch/serverlist.xml\"", _webProxy);
             string pattern = "(?i)serverlisturl(?-i)=\"(.*?)\"";
 
             Regex rgx = new Regex(pattern);
