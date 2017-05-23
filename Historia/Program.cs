@@ -24,13 +24,21 @@ namespace Historia
                     var config = new ConfigServer(local, options.TOSPath);
                     var destination = GetIPEndPoint(config.Init());
 
+                    //new ProxyBak().Init(local, destination, new HTMLWriter());
+                    var writer = new HTMLWriter();
+                    new Proxy(writer).StartAsync(local, destination);
+
                     Console.WriteLine("[Program] Starting Tree of Savior.");
                     ProcessStartInfo proc = new ProcessStartInfo();
                     proc.FileName = GetClientExe(options.TOSPath);
                     proc.Arguments = "-SERVICE";
                     Process.Start(proc);
 
-                    new Proxy().Init(local, destination);
+                    //var writer = new HTMLWriter();
+
+                    //new ProxyBak().Init(local, destination, writer);
+                    
+
                     Console.ReadLine();
                 }
             }

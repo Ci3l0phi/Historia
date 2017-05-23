@@ -8,7 +8,7 @@ namespace Historia
 {
     public class Op
     {
-        public struct Opcode
+        public class Opcode
         {
             public string name;
             public int size;
