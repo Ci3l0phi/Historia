@@ -5,12 +5,15 @@ namespace Historia
 {
     public class Options
     {
-        [Option('l', "local", Required = true, HelpText = "local address for ToS traffic <address:port>.")]
-        public string local { get; set; }
-        [Option('p', "path", Required = false, HelpText = "path to ToS installation.")]
-        public string TOSPath { get; set; }
+        [Option('b', "barrack", Required = true, HelpText = "address for barrack proxy <address:port>.")]
+        public string barrack { get; set; }
+        [Option('z', "zone", Required = true, HelpText = "address for zone proxy <address:port>.")]
+        public string zone { get; set; }
         [Option('w', "web", Required = true, HelpText = "web server address for serving configuration <address:port>.")]
         public string web { get; set; }
+        [Option('p', "path", Required = true, HelpText = "path to ToS installation.")]
+        public string TOSPath { get; set; }
+
         [HelpOption]
         public string GetUsage()
         {

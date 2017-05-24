@@ -18,26 +18,41 @@ namespace Historia
             {
                 if (CommandLine.Parser.Default.ParseArguments(args, options))
                 {
-                    var local = GetIPEndPoint(options.local);
+                    var barrack = GetIPEndPoint(options.barrack);
+                    var zone = GetIPEndPoint(options.zone);
                     var web = GetIPEndPoint(options.web);
 
-                    var config = new ConfigServer(local, web, options.TOSPath);
+                    var config = new ConfigServer(barrack, web, options.TOSPath);
                     var destination = GetIPEndPoint(config.Init());
 
                     var writer = new HTMLWriter();
-                    new Proxy(writer).StartAsync(local, destination);
+                    new Proxy(writer).StartAsync(barrack, destination);
 
-                    Console.WriteLine("[Program] Starting Tree of Savior.");
-                    ProcessStartInfo proc = new ProcessStartInfo();
-                    proc.FileName = GetClientExe(options.TOSPath);
-                    proc.Arguments = "-SERVICE";
-                    Process.Start(proc);
-
+                    StartGame(options.TOSPath);
+                    
+                    
                     Console.ReadLine();
                 }
             }
             catch (Exception e)
             {
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        private static void StartGame(string path, string arguments = "-SERVICE")
+        {
+            try
+            {
+                Console.WriteLine("[Program] Starting Tree of Savior.");
+                Process.Start(new ProcessStartInfo()
+                {
+                    FileName = GetClientExe(path),
+                    Arguments = arguments
+                });
+            } catch (Exception e)
+            {
+                Console.WriteLine("[Program] Error. Unable to start Tree of Savior.");
                 Console.WriteLine(e.Message);
             }
         }
