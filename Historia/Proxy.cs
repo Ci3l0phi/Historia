@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Historia
@@ -13,6 +14,9 @@ namespace Historia
         private static TOSCrypto crypto = new TOSCrypto();
         private static readonly object ConsoleWriterLock = new object();
         private static HTMLWriter writer;
+
+        private static bool ZoneProxyExists = false;
+
         private class State
         {
             public byte[] buffer = new byte[8192];
@@ -80,6 +84,13 @@ namespace Historia
                 var read = state.source.Receive(state.buffer, 0, state.buffer.Length, SocketFlags.None);
                 if (read > 0)
                 {
+                    if (state.direction == State.Direction.ServerToClient)
+                    {
+                        var injected = ProcessZone(state.buffer, read);
+                        if (injected != null)
+                            state.buffer = injected;
+                    }
+                    
                     state.destination.Send(state.buffer, 0, read, SocketFlags.None);
 
                     byte[] copy = new byte[read];
@@ -185,6 +196,67 @@ namespace Historia
             {
                 Console.WriteLine(e.Message);
             }
+        }
+
+        /// <summary>
+        /// Starts a new proxy instance for the zone.
+        /// </summary>
+        public byte[] ProcessZone(byte[] buffer, int read)
+        {
+            try
+            {
+                var header = BitConverter.ToInt16(buffer, 0);
+                var opcode = Op.opcodes.Where(x => x.header == header).FirstOrDefault();
+                if ((opcode == null) || (opcode.name != "BC_START_GAMEOK"))
+                    return null;
+            } catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            try
+            {
+                //byte[] copy = new byte[read];
+                //Buffer.BlockCopy(buffer, 0, copy, 0, read);
+                var address = buffer.Skip(6).Skip(sizeof(Int32)).Take(sizeof(Int32)).ToArray();
+                var port = buffer.Skip(6).Skip(sizeof(Int32)).Skip(sizeof(Int32)).Take(sizeof(Int32)).ToArray();
+
+                
+
+                
+
+                
+
+                //
+                IPAddress addr;
+                IPAddress.TryParse("127.0.0.1", out addr);
+                var pt = 7002;
+                var local = new IPEndPoint(addr, pt);
+                var remote = new IPEndPoint(new IPAddress(address), BitConverter.ToInt32(port, 0));
+                
+                if (!ZoneProxyExists)
+                {
+                    ZoneProxyExists = true;
+                    new Proxy(writer).StartAsync(local, remote);
+                }
+
+                byte[] injected = new byte[read];
+                Buffer.BlockCopy(buffer, 0, injected, 0, 10); // size of header, and 4 unk bytes
+
+                byte[] injectedAddr = addr.GetAddressBytes();
+                Buffer.BlockCopy(injectedAddr, 0, injected, 10, injectedAddr.Length);
+
+                var injectedPort = BitConverter.GetBytes(pt);
+                Buffer.BlockCopy(injectedPort, 0, injected, 14, sizeof(Int32));
+
+                Buffer.BlockCopy(buffer, 18, injected, 18, (read - 18));
+
+                return injected;
+            } catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            return null;
         }
 
         public async void StartAsync(IPEndPoint local, IPEndPoint remote)

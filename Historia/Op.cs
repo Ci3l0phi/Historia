@@ -12,7 +12,7 @@ namespace Historia
         {
             public string name;
             public int size;
-            public int header;
+            public short header;
         }
 
         public static readonly List<Opcode> opcodes = new List<Opcode>()
