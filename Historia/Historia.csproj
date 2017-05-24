@@ -57,7 +57,7 @@
     <Compile Include="ConfigServer.cs" />
     <Compile Include="HTMLWriter.cs" />
     <Compile Include="Proxy.cs" />
-    <Compile Include="TOSCryto.cs" />
+    <Compile Include="TOSCrypto.cs" />
     <Compile Include="Blowfish.cs" />
     <Compile Include="Op.cs" />
     <Compile Include="Options.cs" />
