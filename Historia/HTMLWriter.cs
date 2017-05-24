@@ -52,13 +52,12 @@ namespace Historia
             doc.Save(docPath);
         }
 
-        public void Append(Op.Opcode opcode, byte[] raw, string direction)
+        public void Append(Op.Opcode opcode, byte[] raw, string direction, int size)
         {
 
             try
             {
                 var header = opcode.header.ToString("X4");
-                var size = opcode.size.ToString();
 
                 StringBuilder hex = new StringBuilder();
                 foreach (var b in raw)

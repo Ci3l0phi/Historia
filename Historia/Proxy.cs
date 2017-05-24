@@ -101,93 +101,87 @@ namespace Historia
             }
         }
 
+        /// <summary>
+        /// I'm sure this can be simplified ;)
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="direction"></param>
         private void Process(byte[] buffer, State.Direction direction)
         {
-
             try
             {
                 if (direction == State.Direction.ClientToServer)
                 {
-                    var lengthBytes = buffer.Take(sizeof(short)).ToArray();
-                    buffer = buffer.Skip(sizeof(short)).ToArray();
-                    var packetLength = BitConverter.ToInt16(lengthBytes, 0);
+                    var packetLength = BitConverter.ToInt16(buffer, 0);
 
-                    if (buffer.Length != packetLength)
-                        Console.WriteLine(string.Format("Error. The read {0} doesn't match packetlength {1}", buffer.Length, packetLength));
-
-                    if (buffer.Length != packetLength)
-                        throw new Exception(string.Format("Error. The packet length {0} does not match the buffer length {1} !", packetLength, buffer.Length));
-
-                    crypto.Decrypt(buffer, 0, packetLength);
-
-                    byte[] bak = new byte[packetLength + 2];
-                    Buffer.BlockCopy(lengthBytes, 0, bak, 0, 2);
-                    Buffer.BlockCopy(buffer, 0, bak, 2, packetLength);
-
-                    while (buffer.Length > 0)
+                    if ((buffer.Length -2) != packetLength)
                     {
-                        var header = BitConverter.ToInt16(buffer, 0);
-                        var opcode = Op.opcodes.Where(x => x.header == header).FirstOrDefault();
-                        if (opcode == null)
-                            throw new Exception(string.Format("Error. The opcode with header {0} was not found!\n\tDumping buffer: {1}\npacket: {2}", header, BitConverter.ToString(buffer), BitConverter.ToString(bak)));
-
-                        if (opcode.size == 0)
+                        lock (ConsoleWriterLock)
                         {
-                            var dlength = BitConverter.ToInt16(buffer, 6);
-                            var chunk = buffer.Take(dlength).ToArray();
-                            buffer = buffer.Skip(dlength).ToArray();
-
-                            lock (writer)
-                            {
-                                writer.Append(opcode, chunk, "CLIENT => SERVER");
-                            }
+                            Console.WriteLine("Buffer length {0} does not match the packet length! {1}", buffer.Length, packetLength);
+                            Console.WriteLine("dump: {0}", BitConverter.ToString(buffer));
                         }
-                        else
+                        lock (ConsoleWriterLock)
                         {
-                            var chunk = buffer.Take(packetLength).ToArray();
-                            buffer = buffer.Skip(packetLength).ToArray();
-
-                            lock (writer)
-                            {
-                                writer.Append(opcode, chunk, "CLIENT => SERVER");
-                            }
+                            var _opc = Op.opcodes.Where(x => x.name == "UNKNOWN").FirstOrDefault();
+                            writer.Append(_opc, buffer, "C => S", buffer.Length);
                         }
+                        return;
                     }
-                }
-                else
+
+                    crypto.Decrypt(buffer, sizeof(short), packetLength);
+
+                    var header = BitConverter.ToInt16(buffer, 2);
+                    var opcode = Op.opcodes.Where(x => x.header == header).FirstOrDefault();
+                    if (opcode == null)
+                    {
+                        lock (ConsoleWriterLock)
+                        {
+                            opcode = Op.opcodes.Where(x => x.name == "UNKNOWN").FirstOrDefault();
+                            writer.Append(opcode, buffer, "C => S", buffer.Length);
+                        }
+                        return;
+                    }
+
+                    var chunk = buffer.Skip(2).ToArray();
+                    lock (ConsoleWriterLock)
+                    {
+                        writer.Append(opcode, chunk, "C => S", packetLength);
+                    }
+                } else
                 {
                     while (buffer.Length > 0)
                     {
                         var header = BitConverter.ToInt16(buffer, 0);
                         var opcode = Op.opcodes.Where(x => x.header == header).FirstOrDefault();
                         if (opcode == null)
-                            throw new Exception(string.Format("Error. The opcode with header {0} was not found!\n\tDumping buffer: {1}", header, BitConverter.ToString(buffer)));
+                        {
+                            lock (ConsoleWriterLock)
+                            {
+                                opcode = Op.opcodes.Where(x => x.name == "UNKNOWN").FirstOrDefault();
+                                writer.Append(opcode, buffer, "S => C", buffer.Length);
+                            }
+                            return;
+                        }
 
+                        int chunkLength;
                         if (opcode.size == 0)
                         {
-                            var dlength = BitConverter.ToInt16(buffer, 6);
-                            var chunk = buffer.Take(dlength).ToArray();
-                            buffer = buffer.Skip(dlength).ToArray();
-
-                            lock (writer)
-                            {
-                                writer.Append(opcode, chunk, "SERVER => CLIENT");
-                            }
-                        }
-                        else
+                            chunkLength = BitConverter.ToInt16(buffer, 6);
+                        } else
                         {
-                            var chunk = buffer.Take(opcode.size).ToArray();
-                            buffer = buffer.Skip(opcode.size).ToArray();
+                            chunkLength = opcode.size;
+                        }
 
-                            lock (writer)
-                            {
-                                writer.Append(opcode, chunk, "SERVER => CLIENT");
-                            }
+                        var chunk = buffer.Take(chunkLength).ToArray();
+                        buffer = buffer.Skip(chunkLength).ToArray();
+                        lock (ConsoleWriterLock)
+                        {
+                            writer.Append(opcode, chunk, "S => C", chunkLength);
                         }
                     }
                 }
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }

@@ -681,6 +681,7 @@ namespace Historia
             new Opcode { name = "CZ_REQUEST_CHANGE_NAME", header = 3649, size = 66 },
             new Opcode { name = "ZC_HOLD_EXP_BOOK_TIME", header = 3651, size = 25 },
             new Opcode { name = "CZ_HOLD_EXP_BOOK_TIME", header = 3652, size = 14 },
+            new Opcode { name = "UNKNOWN", header = -1, size = 0 },
         };
     }
 }
