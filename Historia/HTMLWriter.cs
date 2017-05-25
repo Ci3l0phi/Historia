@@ -49,13 +49,7 @@ namespace Historia
             try
             {
                 var header = opcode.header.ToString("X4");
-
-                StringBuilder hex = new StringBuilder();
-                foreach (var b in raw)
-                {
-                    hex.AppendFormat("{0:x2}", b);
-                    hex.Append(" ");
-                }
+                string hex = ByteHelper.ConvertToHex(raw);
 
                 var ascii = Encoding.ASCII.GetString(raw);
                 ascii = Regex.Replace(ascii, @"[^\u0020-\u007E]", ".");

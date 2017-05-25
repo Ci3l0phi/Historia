@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ByteHelper.cs" />
     <Compile Include="ConfigServer.cs" />
     <Compile Include="HTMLWriter.cs" />
     <Compile Include="Logger.cs" />

@@ -214,8 +214,7 @@ namespace Historia
 
             try
             {
-                byte[] copy = new byte[read];
-                Buffer.BlockCopy(buffer, 0, copy, 0, read);
+                var copy = ByteHelper.Copy(buffer, read);
                 var packet = new Op.StartGamePacket(copy);
                 
                 IPAddress addr;
