@@ -214,23 +214,15 @@ namespace Historia
 
             try
             {
-                //byte[] copy = new byte[read];
-                //Buffer.BlockCopy(buffer, 0, copy, 0, read);
-                var address = buffer.Skip(6).Skip(sizeof(Int32)).Take(sizeof(Int32)).ToArray();
-                var port = buffer.Skip(6).Skip(sizeof(Int32)).Skip(sizeof(Int32)).Take(sizeof(Int32)).ToArray();
-
+                byte[] copy = new byte[read];
+                Buffer.BlockCopy(buffer, 0, copy, 0, read);
+                var packet = new Op.StartGamePacket(copy);
                 
-
-                
-
-                
-
-                //
                 IPAddress addr;
                 IPAddress.TryParse("127.0.0.1", out addr);
                 var pt = 7002;
                 var local = new IPEndPoint(addr, pt);
-                var remote = new IPEndPoint(new IPAddress(address), BitConverter.ToInt32(port, 0));
+                var remote = new IPEndPoint(new IPAddress(packet.address), BitConverter.ToInt32(packet.port, 0));
                 
                 if (!ZoneProxyExists)
                 {
@@ -238,18 +230,9 @@ namespace Historia
                     new Proxy(writer).StartAsync(local, remote);
                 }
 
-                byte[] injected = new byte[read];
-                Buffer.BlockCopy(buffer, 0, injected, 0, 10); // size of header, and 4 unk bytes
-
-                byte[] injectedAddr = addr.GetAddressBytes();
-                Buffer.BlockCopy(injectedAddr, 0, injected, 10, injectedAddr.Length);
-
-                var injectedPort = BitConverter.GetBytes(pt);
-                Buffer.BlockCopy(injectedPort, 0, injected, 14, sizeof(Int32));
-
-                Buffer.BlockCopy(buffer, 18, injected, 18, (read - 18));
-
-                return injected;
+                packet.address = addr.GetAddressBytes();
+                packet.port = BitConverter.GetBytes(pt);
+                return packet.Build();
             } catch (Exception e)
             {
                 Console.WriteLine(e.Message);

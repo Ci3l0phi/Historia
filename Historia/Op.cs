@@ -6,8 +6,14 @@ using System.Threading.Tasks;
 
 namespace Historia
 {
+    /// <summary>
+    /// Provides references for packet structures.
+    /// </summary>
     public class Op
     {
+        /// <summary>
+        /// Represents unique properties of a recognized packet.
+        /// </summary>
         public class Opcode
         {
             public string name;
@@ -15,6 +21,10 @@ namespace Historia
             public short header;
         }
 
+        /// <summary>
+        /// List of recognized opcodes in game. Not complete.
+        /// </summary>
+        #region opcodes
         public static readonly List<Opcode> opcodes = new List<Opcode>()
         {
             new Opcode { name = "CB_LOGIN", header = 3, size = 206 },
@@ -683,5 +693,53 @@ namespace Historia
             new Opcode { name = "CZ_HOLD_EXP_BOOK_TIME", header = 3652, size = 14 },
             new Opcode { name = "UNKNOWN", header = -1, size = 0 },
         };
+        #endregion opcodes
+
+        /// <summary>
+        /// Describes the packet structure for the BC_START_GAMEOK opcode.
+        /// </summary>
+        public class StartGamePacket
+        {
+            public byte[] header = new byte[6];
+            public byte[] unk_1 = new byte[4];
+            public byte[] address = new byte[4];
+            public byte[] port = new byte[4];
+            public byte[] unk_2;
+
+            /// <summary>
+            /// Shifts bytes from a buffer into smaller chunks of class properties.
+            /// </summary>
+            /// <param name="buffer">A BC_START_GAMEOK packet</param>
+            public StartGamePacket(byte[] buffer)
+            {
+                this.header = buffer.Take(this.header.Length).ToArray();
+                buffer = buffer.Skip(this.header.Length).ToArray();
+
+                this.unk_1 = buffer.Take(this.unk_1.Length).ToArray();
+                buffer = buffer.Skip(this.unk_1.Length).ToArray();
+
+                this.address = buffer.Take(this.address.Length).ToArray();
+                buffer = buffer.Skip(this.address.Length).ToArray();
+
+                this.port = buffer.Take(this.port.Length).ToArray();
+                buffer = buffer.Skip(this.port.Length).ToArray();
+
+                this.unk_2 = buffer.ToArray();
+            }
+
+            /// <summary>
+            /// Returns a built byte array of all properties.
+            /// </summary>
+            /// <returns></returns>
+            public byte[] Build()
+            {
+                return this.header
+                    .Concat(this.unk_1)
+                    .Concat(this.address)
+                    .Concat(this.port)
+                    .Concat(this.unk_2)
+                    .ToArray();
+            }
+        }
     }
 }
