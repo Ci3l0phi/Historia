@@ -205,7 +205,7 @@ namespace Historia
             {
                 var header = BitConverter.ToInt16(buffer, 0);
                 var opcode = Op.opcodes.Where(x => x.header == header).FirstOrDefault();
-                if ((opcode == null) || (opcode.name != "BC_START_GAMEOK"))
+                if ((opcode == null) || (opcode.name != Op.StartGamePacket.name))
                     return null;
             } catch (Exception e)
             {

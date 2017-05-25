@@ -153,7 +153,7 @@ namespace Historia
                 //{
                 var context = await this._listener.GetContextAsync();
                 Console.WriteLine("[ConfigServer] ServerList request received.");
-                Process(context);
+                SendServerList(context);
                 //await Task.Factory.StartNew(() => Process(context));
 
                 //}
@@ -164,9 +164,12 @@ namespace Historia
             }
         }
 
-        public void Process(HttpListenerContext context)
+        /// <summary>
+        /// Builds serverlist.xml with Historia's proxy address information.
+        /// </summary>
+        /// <param name="context"></param>
+        public void SendServerList(HttpListenerContext context)
         {
-
             var req = context.Request;
             var res = context.Response;
 
@@ -195,7 +198,6 @@ namespace Historia
                     strout = Encoding.UTF8.GetBytes(str.ToString());
                 }
 
-                //res.AddHeader("content-type", "text/xml");
                 res.StatusCode = 200;
                 res.OutputStream.Write(strout, 0, strout.Length);
             }
@@ -204,13 +206,7 @@ namespace Historia
                 res.StatusCode = 404;
             }
             res.Close();
-            //RestoreConfig();
-            var axml = GetClientXml();
-            //if (File.Exists(axml + ".bak"))
-            //{
-                File.Copy(("D:\\Games\\PC\\SteamLibrary\\steamapps\\common\\TreeOfSavior\\release\\client.xml.bak"), "D:\\Games\\PC\\SteamLibrary\\steamapps\\common\\TreeOfSavior\\release\\client.xml", true);
-                Console.WriteLine("[ConfigServer] Restored client.xml from client.xml.bak.");
-            //}
+            RestoreConfig();
         }
     }
 }

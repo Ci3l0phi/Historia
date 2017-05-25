@@ -700,11 +700,15 @@ namespace Historia
         /// </summary>
         public class StartGamePacket
         {
+            public static readonly string name = "BC_START_GAMEOK";
+
+            #region structure
             public byte[] header = new byte[6];
             public byte[] unk_1 = new byte[4];
             public byte[] address = new byte[4];
             public byte[] port = new byte[4];
             public byte[] unk_2;
+            #endregion structure
 
             /// <summary>
             /// Shifts bytes from a buffer into smaller chunks of class properties.

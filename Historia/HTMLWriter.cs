@@ -43,7 +43,6 @@ namespace Historia
 
         public void Append(Op.Opcode opcode, byte[] raw, string direction, int size)
         {
-
             try
             {
                 var header = opcode.header.ToString("X4");
