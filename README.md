@@ -13,7 +13,7 @@ Historia is a packet logging tool based off of [Cyrenia](https://github.com/r1em
   -w, --web        Required. web server address for serving configuration
                    <address:port>.
 
-  -p, --path       Required. path to ToS installation.
+  -p, --path       Required. path to client installation.
 
   --help           Display this help screen.
 ```
