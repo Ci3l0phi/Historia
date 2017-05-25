@@ -26,6 +26,7 @@ Historia.exe --barrack="127.0.0.1:7001" --zone="127.0.0.1:7024" --web="127.0.0.1
 ## Notes
 * Historia requires administrator privileges when executing. This is because of the use of [HttpListener](https://msdn.microsoft.com/en-us/library/system.net.httplistener(v=vs.110).aspx) for the web proxy.
 * Client configuration files are backed up to `client.xml.bak`, but you should make certain to maintain your own backup as well.
+* Packets can be viewed in the folder named `packets` next to the executable location.
 
 ## Credits
 Aura Project team for crypto.  
