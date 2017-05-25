@@ -4,7 +4,7 @@
 using Historia;
 using System;
 
-namespace Historia
+namespace Historia.Lib
 {
     public partial class TOSCrypto
     {

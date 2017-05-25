@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Historia
@@ -13,43 +14,31 @@ namespace Historia
         public string docPath { get; private set; }
         private HtmlDocument doc;
 
+        private static readonly string packetsPath = "packets";
+        private static readonly string includesPath = "includes";
+        private static readonly List<string> includes = new List<string> { "Template.css", "Template.html" };
+
         public HTMLWriter() : this(DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".html") {}
 
         public HTMLWriter(string filename)
         {
-            docPath = Path.Combine("packets", filename);
+            Console.WriteLine("[HTMLWriter] Initializing output directories.");
+            try
+            {
+                Directory.CreateDirectory(packetsPath);
+                Directory.CreateDirectory(Path.Combine(packetsPath, includesPath));
+                foreach (var include in includes)
+                    File.Copy(include, Path.Combine(packetsPath, includesPath, include), true);
 
-            doc = new HtmlDocument();
-            Directory.CreateDirectory("packets");
-            doc.Save(docPath);
 
-            Console.WriteLine("[HtmlWriter] Logging packets to {0}", docPath);
-
-            var htmlStr = @"
-            <!DOCTYPE html>
-            <html>
-                <head>
-                    <title></title>
-                </head>
-                <body>
-                    <table>
-                        <thead>
-                            <tr>
-                                <td>Name</td>
-                                <td>Direction</td>
-                                <td>Opcode</td>
-                                <td>Size</td>
-                                <td>Raw</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </body>
-            </html>";
-
-            doc.LoadHtml(htmlStr);
-            doc.Save(docPath);
+                doc = new HtmlDocument();
+                doc.Load(Path.Combine(packetsPath, includesPath, "Template.html"));
+                this.docPath = Path.Combine(packetsPath, filename);
+                doc.Save(this.docPath);
+            } catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
 
         public void Append(Op.Opcode opcode, byte[] raw, string direction, int size)
@@ -66,10 +55,13 @@ namespace Historia
                     hex.Append(" ");
                 }
 
-                var nodeText = string.Format("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>", opcode.name, direction, header, size, hex);
+                var ascii = Encoding.ASCII.GetString(raw);
+                ascii = Regex.Replace(ascii, @"[^\u0020-\u007E]", ".");
+
+                var nodeText = string.Format(@"<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td></tr>", opcode.name, direction, header, size, hex, ascii);
                 var node = doc.DocumentNode.SelectSingleNode("//tbody");
                 node.AppendChild(HtmlNode.CreateNode(nodeText));
-                doc.Save(docPath);
+                doc.Save(this.docPath);
             } catch (Exception e)
             {
                 Console.WriteLine(e.Message);

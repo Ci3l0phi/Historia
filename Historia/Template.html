@@ -5,27 +5,23 @@
     <meta charset="utf-8" />
     <title>Historia</title>
     <link rel="stylesheet" href="includes/Template.css" type="text/css">
-    <script type="text/javascript" src="includes/Template.js"></script>
 </head>
 <body>
     <div id="container">
         <h1>Historia Log</h1>
-        <div class="table-responsive-vertical shadow-z-1">
-            <table id="table" class="table table-hover table-mc-light-blue">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Direction</th>
-                        <th>Opcode</th>
-                        <th>Size</th>
-                        <th>Raw</th>
-                        <th>ASCII</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
+        <table id="packets" cellspacing="0" cellpadding="0">
+            <thead>
+                <tr>
+                    <th style="width: 15%;">Name</th>
+                    <th style="width: 5%;">Dir</th>
+                    <th style="width: 5%;">Op</th>
+                    <th style="width: 5%;">Size</th>
+                    <th style="width: 50%;">Raw</th>
+                    <th style="width: 20%;">ASCII</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
 </body>
 </html>

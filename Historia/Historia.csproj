@@ -56,9 +56,10 @@
   <ItemGroup>
     <Compile Include="ConfigServer.cs" />
     <Compile Include="HTMLWriter.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="Proxy.cs" />
-    <Compile Include="TOSCrypto.cs" />
-    <Compile Include="Blowfish.cs" />
+    <Compile Include="lib\TOSCrypto.cs" />
+    <Compile Include="lib\Blowfish.cs" />
     <Compile Include="Op.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
@@ -75,9 +76,12 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Template.css" />
-    <Content Include="Template.html" />
-    <Content Include="Template.js" />
+    <Content Include="Template.css">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Template.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

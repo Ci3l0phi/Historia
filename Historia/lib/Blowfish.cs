@@ -27,7 +27,7 @@
 using System;
 using System.Text;
 
-namespace Historia
+namespace Historia.Lib
 {
     /// <summary>
     /// Class that provides blowfish encryption.
