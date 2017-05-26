@@ -58,8 +58,6 @@ namespace Historia
             }
         }
 
-        
-
         public static string GetClientExe(string argument)
         {
             var clientExe = Path.Combine(argument, "release\\Client_tos.exe");

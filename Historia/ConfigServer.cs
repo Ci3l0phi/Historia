@@ -41,13 +41,6 @@ namespace Historia
             return selected;
         }
 
-        public void BackupConfig()
-        {
-            var xml = GetClientXml();
-            File.Copy(xml, (xml + ".bak"), true);
-            Console.WriteLine("[ConfigServer] Backed up client.xml to client.xml.bak.");
-        }
-
         public string PromptServer()
         {
             Console.WriteLine("[ConfigServer] Fetching list of servers.");
@@ -135,6 +128,10 @@ namespace Historia
             return clientXml;
         }
 
+
+        /// <summary>
+        /// Restores a backed up copy of the client.xml.
+        /// </summary>
         private void RestoreConfig()
         {
             var xml = GetClientXml();
@@ -142,6 +139,19 @@ namespace Historia
             {
                 File.Copy((xml + ".bak"), xml, true);
                 Console.WriteLine("[ConfigServer] Restored client.xml from client.xml.bak.");
+            }
+        }
+
+        /// <summary>
+        /// Makes a backup of the client.xml before modifying it.
+        /// </summary>
+        public void BackupConfig()
+        {
+            var xml = GetClientXml();
+            if (!File.Exists(xml + ".bak"))
+            {
+                File.Copy(xml, (xml + ".bak"), true);
+                Console.WriteLine("[ConfigServer] Backed up client.xml to client.xml.bak.");
             }
         }
 

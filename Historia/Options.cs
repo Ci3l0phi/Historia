@@ -3,6 +3,9 @@ using CommandLine.Text;
 
 namespace Historia
 {
+    /// <summary>
+    /// Lists the commandline arguments available.
+    /// </summary>
     public class Options
     {
         [Option('b', "barrack", Required = true, HelpText = "address for barrack proxy <address:port>.")]
