@@ -109,6 +109,8 @@ namespace Historia
         /// <param name="direction"></param>
         private void Process(byte[] buffer, State.Direction direction)
         {
+            string directionAsStr = (direction == State.Direction.ClientToServer ? "C => S" : "S => C");
+
             try
             {
                 if (direction == State.Direction.ClientToServer)
@@ -117,11 +119,7 @@ namespace Historia
 
                     if ((buffer.Length -2) != packetLength)
                     {
-                        lock (ConsoleWriterLock)
-                        {
-                            var _opc = Op.opcodes.Where(x => x.name == "UNKNOWN").FirstOrDefault();
-                            Program.writer.Append(_opc, buffer, "C => S", buffer.Length);
-                        }
+                        LogUnknownPacket(buffer, directionAsStr);
                         return;
                     }
 
@@ -131,18 +129,14 @@ namespace Historia
                     var opcode = Op.opcodes.Where(x => x.header == header).FirstOrDefault();
                     if (opcode == null)
                     {
-                        lock (ConsoleWriterLock)
-                        {
-                            opcode = Op.opcodes.Where(x => x.name == "UNKNOWN").FirstOrDefault();
-                            Program.writer.Append(opcode, buffer, "C => S", buffer.Length);
-                        }
+                        LogUnknownPacket(buffer, directionAsStr);
                         return;
                     }
 
                     var chunk = buffer.Skip(2).ToArray();
                     lock (ConsoleWriterLock)
                     {
-                        Program.writer.Append(opcode, chunk, "C => S", packetLength);
+                        Program.writer.Append(opcode, chunk, directionAsStr, packetLength);
                     }
                 } else
                 {
@@ -152,11 +146,7 @@ namespace Historia
                         var opcode = Op.opcodes.Where(x => x.header == header).FirstOrDefault();
                         if (opcode == null)
                         {
-                            lock (ConsoleWriterLock)
-                            {
-                                opcode = Op.opcodes.Where(x => x.name == "UNKNOWN").FirstOrDefault();
-                                Program.writer.Append(opcode, buffer, "S => C", buffer.Length);
-                            }
+                            LogUnknownPacket(buffer, directionAsStr);
                             return;
                         }
 
@@ -173,14 +163,29 @@ namespace Historia
                         buffer = buffer.Skip(chunkLength).ToArray();
                         lock (ConsoleWriterLock)
                         {
-                            Program.writer.Append(opcode, chunk, "S => C", chunkLength);
+                            Program.writer.Append(opcode, chunk, directionAsStr, chunkLength);
                         }
                     }
                 }
             } catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message, e.StackTrace);
             }
+        }
+
+        /// <summary>
+        /// Logs unknown packets.
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="direction"></param>
+        public void LogUnknownPacket(byte[] buffer, string direction)
+        {
+            lock (ConsoleWriterLock)
+            {
+                var opcode = Op.opcodes.Where(x => x.name == "UNKNOWN").FirstOrDefault();
+                Program.writer.Append(opcode, buffer, direction, buffer.Length);
+            }
+            return;
         }
 
         /// <summary>
