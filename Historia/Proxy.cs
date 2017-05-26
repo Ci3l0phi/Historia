@@ -67,7 +67,6 @@ namespace Historia
                     ReceiveAsync(serverState);
                 }
 
-
             }
             catch (Exception e)
             {
@@ -90,9 +89,8 @@ namespace Historia
                     }
                     
                     state.destination.Send(state.buffer, 0, read, SocketFlags.None);
-
-                    byte[] copy = new byte[read];
-                    Buffer.BlockCopy(state.buffer, 0, copy, 0, read);
+                    
+                    var copy = ByteHelper.Copy(state.buffer, read);
                     ProcessAsync(copy, state.direction);
 
                     Array.Clear(state.buffer, 0, state.buffer.Length);
@@ -216,21 +214,17 @@ namespace Historia
             {
                 var copy = ByteHelper.Copy(buffer, read);
                 var packet = new Op.StartGamePacket(copy);
-                
-                IPAddress addr;
-                IPAddress.TryParse("127.0.0.1", out addr);
-                var pt = 7002;
-                var local = new IPEndPoint(addr, pt);
-                var remote = new IPEndPoint(new IPAddress(packet.address), BitConverter.ToInt32(packet.port, 0));
+
+                Endpoint.RemoteZone = new IPEndPoint(new IPAddress(packet.address), BitConverter.ToInt32(packet.port, 0));
                 
                 if (!ZoneProxyExists)
                 {
                     ZoneProxyExists = true;
-                    new Proxy(writer).StartAsync(local, remote);
+                    new Proxy(writer).StartAsync(Endpoint.LocalZone, Endpoint.RemoteZone);
                 }
 
-                packet.address = addr.GetAddressBytes();
-                packet.port = BitConverter.GetBytes(pt);
+                packet.address = Endpoint.LocalZone.Address.GetAddressBytes();
+                packet.port = BitConverter.GetBytes(Endpoint.LocalZone.Port);
                 return packet.Build();
             } catch (Exception e)
             {

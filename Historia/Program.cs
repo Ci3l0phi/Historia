@@ -11,6 +11,8 @@ namespace Historia
 {
     class Program
     {
+        public static HTMLWriter writer = new HTMLWriter();
+
         static void Main(string[] args)
         { 
             var options = new Options();
@@ -18,15 +20,14 @@ namespace Historia
             {
                 if (CommandLine.Parser.Default.ParseArguments(args, options))
                 {
-                    var barrack = GetIPEndPoint(options.barrack);
-                    var zone = GetIPEndPoint(options.zone);
-                    var web = GetIPEndPoint(options.web);
+                    Endpoint.LocalBarrack = Endpoint.ConvertToIPEndPoint(options.barrack);
+                    Endpoint.LocalZone = Endpoint.ConvertToIPEndPoint(options.zone);
+                    Endpoint.LocalWeb = Endpoint.ConvertToIPEndPoint(options.web);
 
-                    var config = new ConfigServer(barrack, web, options.TOSPath);
-                    var destination = GetIPEndPoint(config.Init());
+                    var config = new ConfigServer(Endpoint.LocalBarrack, Endpoint.LocalWeb, options.TOSPath);
+                    var destination = Endpoint.ConvertToIPEndPoint(config.Init());
 
-                    var writer = new HTMLWriter();
-                    new Proxy(writer).StartAsync(barrack, destination);
+                    new Proxy(writer).StartAsync(Endpoint.LocalBarrack, destination);
 
                     StartGame(options.TOSPath);
                     
@@ -57,26 +58,7 @@ namespace Historia
             }
         }
 
-        public static IPEndPoint GetIPEndPoint(string argument)
-        {
-            string[] ep = argument.Split(':');
-            if (ep.Length != 2) throw new FormatException(string.Format("Invalid argument '{0}'.", argument));
-
-            IPAddress address;
-            int port;
-
-            if (!IPAddress.TryParse(ep[0], out address))
-            {
-                throw new FormatException(string.Format("'{0}' is not a valid IP address.", ep[0]));
-            }
-
-            if (!int.TryParse(ep[1], out port))
-            {
-                throw new FormatException(string.Format("'{0}' is not a valid port.", ep[1]));
-            }
-
-            return new IPEndPoint(address, port);
-        }
+        
 
         public static string GetClientExe(string argument)
         {
