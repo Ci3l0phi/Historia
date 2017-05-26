@@ -27,7 +27,7 @@ namespace Historia
                     var config = new ConfigServer(Endpoint.LocalBarrack, Endpoint.LocalWeb, options.TOSPath);
                     var destination = Endpoint.ConvertToIPEndPoint(config.Init());
 
-                    new Proxy(writer).StartAsync(Endpoint.LocalBarrack, destination);
+                    new Proxy().StartAsync(Endpoint.LocalBarrack, destination);
 
                     StartGame(options.TOSPath);
                     

@@ -11,7 +11,6 @@ namespace Historia
     {
         private static TOSCrypto crypto = new TOSCrypto();
         private static readonly object ConsoleWriterLock = new object();
-        private static HTMLWriter writer;
 
         private static bool ZoneProxyExists = false;
 
@@ -27,11 +26,6 @@ namespace Historia
                 ServerToClient,
                 ClientToServer
             }
-        }
-
-        public Proxy(HTMLWriter _writer)
-        {
-            writer = _writer;
         }
 
         public void Start(IPEndPoint local, IPEndPoint remote)
@@ -131,7 +125,7 @@ namespace Historia
                         lock (ConsoleWriterLock)
                         {
                             var _opc = Op.opcodes.Where(x => x.name == "UNKNOWN").FirstOrDefault();
-                            writer.Append(_opc, buffer, "C => S", buffer.Length);
+                            Program.writer.Append(_opc, buffer, "C => S", buffer.Length);
                         }
                         return;
                     }
@@ -145,7 +139,7 @@ namespace Historia
                         lock (ConsoleWriterLock)
                         {
                             opcode = Op.opcodes.Where(x => x.name == "UNKNOWN").FirstOrDefault();
-                            writer.Append(opcode, buffer, "C => S", buffer.Length);
+                            Program.writer.Append(opcode, buffer, "C => S", buffer.Length);
                         }
                         return;
                     }
@@ -153,7 +147,7 @@ namespace Historia
                     var chunk = buffer.Skip(2).ToArray();
                     lock (ConsoleWriterLock)
                     {
-                        writer.Append(opcode, chunk, "C => S", packetLength);
+                        Program.writer.Append(opcode, chunk, "C => S", packetLength);
                     }
                 } else
                 {
@@ -166,7 +160,7 @@ namespace Historia
                             lock (ConsoleWriterLock)
                             {
                                 opcode = Op.opcodes.Where(x => x.name == "UNKNOWN").FirstOrDefault();
-                                writer.Append(opcode, buffer, "S => C", buffer.Length);
+                                Program.writer.Append(opcode, buffer, "S => C", buffer.Length);
                             }
                             return;
                         }
@@ -184,7 +178,7 @@ namespace Historia
                         buffer = buffer.Skip(chunkLength).ToArray();
                         lock (ConsoleWriterLock)
                         {
-                            writer.Append(opcode, chunk, "S => C", chunkLength);
+                            Program.writer.Append(opcode, chunk, "S => C", chunkLength);
                         }
                     }
                 }
@@ -220,7 +214,7 @@ namespace Historia
                 if (!ZoneProxyExists)
                 {
                     ZoneProxyExists = true;
-                    new Proxy(writer).StartAsync(Endpoint.LocalZone, Endpoint.RemoteZone);
+                    new Proxy().StartAsync(Endpoint.LocalZone, Endpoint.RemoteZone);
                 }
 
                 packet.address = Endpoint.LocalZone.Address.GetAddressBytes();
