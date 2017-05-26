@@ -119,11 +119,6 @@ namespace Historia
                     {
                         lock (ConsoleWriterLock)
                         {
-                            Console.WriteLine("Buffer length {0} does not match the packet length! {1}", buffer.Length, packetLength);
-                            Console.WriteLine("dump: {0}", BitConverter.ToString(buffer));
-                        }
-                        lock (ConsoleWriterLock)
-                        {
                             var _opc = Op.opcodes.Where(x => x.name == "UNKNOWN").FirstOrDefault();
                             Program.writer.Append(_opc, buffer, "C => S", buffer.Length);
                         }
