@@ -105,19 +105,21 @@ namespace Historia
                         int packetLength = 0;
                         if (state.direction == State.Direction.ServerToClient)
                         {
-                            var header = BitConverter.ToInt16(storage, 0);
+                            var header = BitConverter.ToUInt16(storage, 0);
                             var opcode = Op.opcodes.Where(x => x.header == header).FirstOrDefault();
                             if (opcode == null)
                             {
                                 //check for compressed
                                 if ((header & 0xF000) == 0x8000)
                                 {
-                                    int zipLength = (int)storage[0];
+                                    int zipLength = ((header & (~0x8000)) + 3);
+
+                                    //int zipLength = (int)storage[0];
                                     var compressed = new byte[zipLength];
-                                    Buffer.BlockCopy(storage, 2, compressed, 0, zipLength);
+                                    Buffer.BlockCopy(storage, 2, compressed, 0, (zipLength - 2));
                                     compressed = ByteHelper.Decompress(compressed);
 
-                                    storage = storage.Skip(zipLength + 3).ToArray();
+                                    storage = storage.Skip(zipLength).ToArray();
                                     ByteHelper.Prepend(compressed, storage);
                                     continue;
                                 }
@@ -277,6 +279,7 @@ namespace Historia
 
                 packet.address = Endpoint.LocalZone.Address.GetAddressBytes();
                 packet.port = BitConverter.GetBytes(Endpoint.LocalZone.Port);
+                //packet.port = BitConverter.GetBytes(7028);
                 return packet.Build();
             }
             catch (Exception e)
