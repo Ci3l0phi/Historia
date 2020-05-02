@@ -81,7 +81,7 @@ namespace Historia
 
                             endpoints.Add(endpoint_1);
                             endpoints.Add(endpoint_2);
-							endpoints.Add(endpoint_3);
+			    endpoints.Add(endpoint_3);
 
                             Console.WriteLine("[{0}] {1} {2}", i++, name, endpoint_1);
                             Console.WriteLine("[{0}] {1} {2}", i++, name, endpoint_2);
