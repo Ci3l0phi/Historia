@@ -77,7 +77,7 @@ namespace Historia
                             var name = xml.GetAttribute("NAME");
                             var endpoint_1 = xml.GetAttribute("Server0_IP") + ":" + xml.GetAttribute("Server0_Port");
                             var endpoint_2 = xml.GetAttribute("Server1_IP") + ":" + xml.GetAttribute("Server1_Port");
-							var endpoint_3 = xml.GetAttribute("Server2_IP") + ":" + xml.GetAttribute("Server2_Port");
+			    var endpoint_3 = xml.GetAttribute("Server2_IP") + ":" + xml.GetAttribute("Server2_Port");
 
                             endpoints.Add(endpoint_1);
                             endpoints.Add(endpoint_2);
@@ -85,7 +85,7 @@ namespace Historia
 
                             Console.WriteLine("[{0}] {1} {2}", i++, name, endpoint_1);
                             Console.WriteLine("[{0}] {1} {2}", i++, name, endpoint_2);
-							Console.WriteLine("[{0}] {1} {2}", i++, name, endpoint_3);
+			    Console.WriteLine("[{0}] {1} {2}", i++, name, endpoint_3);
                         }
                     }
                 }
