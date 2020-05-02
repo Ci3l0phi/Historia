@@ -988,7 +988,7 @@ namespace Historia
 			new Opcode { name = "CZ_UDP_MOVE_INFO", header = 0xf73, size = 65},
 			new Opcode { name = "ZC_UDP_MOVE_INFO", header = 0xf74, size = 80},
 			new Opcode { name = "ZC_MAIN_SECTOR_INFO", header = 0xf75, size = 0},
-			new Opcode { name = "CZ_ACCEPT_FIELD_DUNGEON_REJOIN", header = 0xf72, size = 22},
+			new Opcode { name = "CZ_ACCEPT_FIELD_DUNGEON_REJOIN", header = 0xf72, size = 22}
 
 		};
 		#endregion opcodes
